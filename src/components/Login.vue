@@ -1,17 +1,21 @@
 <template>
   <div id="login-container">
     <div class="login-box">
-      <el-form ref="loginFormRef" :model="loginForm">
-        <el-form-item label>
-          <el-input v-model="loginForm.name"></el-input>
+      <el-form ref="loginFormRef" :model="loginForm" :rules="loginFormRules">
+        <el-form-item prop="username">
+          <el-input v-model="loginForm.username">
+            <i slot="prefix" class="iconfont icon-user"></i>
+          </el-input>
         </el-form-item>
-        <el-form-item label>
-          <el-input v-model="loginForm.password"></el-input>
+        <el-form-item prop="password">
+          <el-input v-model="loginForm.password" show-password>
+            <i slot="prefix" class="iconfont icon-3702mima"></i>
+          </el-input>
         </el-form-item>
         <el-row>
           <el-col :offset="15">
-            <el-button type="primary">登录</el-button>
-            <el-button type="info">重置</el-button>
+            <el-button type="primary" @click="login">登录</el-button>
+            <el-button type="info" @click="resetForm">重置</el-button>
           </el-col>
         </el-row>
       </el-form>
@@ -24,11 +28,39 @@
 
 <script>
 export default {
+  methods: {
+    login() {
+      this.$refs.loginFormRef.validate(async (boolean, object) => {
+        // console.log(object)
+        if (boolean) {
+          const { data: dt } = await this.$http.post('/login', this.loginForm)
+          // console.log(dt)
+          if (dt.meta.status != 200) {
+            // return this.$message.error(dt.meta.msg)
+            this.$message({
+              type: 'info',
+              message: dt.meta.msg,
+              duration: 1000
+            })
+          }
+          window.sessionStorage.setItem('token', dt.data.token)
+          this.$router.push('/home')
+        }
+      })
+    },
+    resetForm() {
+      this.$refs.loginFormRef.resetFields()
+    }
+  },
   data() {
     return {
+      loginFormRules: {
+        username: [{ required: true, message: '用户名必填', trigger: 'blur' }],
+        password: [{ required: true, message: '密码必填', trigger: 'blur' }]
+      },
       loginForm: {
-        name: '',
-        password: ''
+        username: 'admin',
+        password: '123456'
       }
     }
   }
