@@ -30,12 +30,12 @@
 export default {
   methods: {
     login() {
-      this.$refs.loginFormRef.validate(async (boolean, object) => {
+      this.$refs.loginFormRef.validate(async boolean => {
         // console.log(object)
         if (boolean) {
           const { data: dt } = await this.$http.post('/login', this.loginForm)
           // console.log(dt)
-          if (dt.meta.status != 200) {
+          if (dt.meta.status !== 200) {
             // return this.$message.error(dt.meta.msg)
             this.$message({
               type: 'info',
